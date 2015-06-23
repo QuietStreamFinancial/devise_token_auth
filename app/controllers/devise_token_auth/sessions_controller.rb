@@ -2,22 +2,9 @@
 module DeviseTokenAuth
   class SessionsController < DeviseTokenAuth::ApplicationController
     before_filter :set_user_by_token, :only => [:destroy]
+    before_filter :set_resource, only: [:create]
 
     def create
-      # honor devise configuration for case_insensitive_keys
-      if resource_class.case_insensitive_keys.include?(:email)
-        email = resource_params[:email].downcase
-      else
-        email = resource_params[:email]
-      end
-
-      q = "uid = ? AND provider='email'"
-
-      if ActiveRecord::Base.connection.adapter_name.downcase.starts_with? 'mysql'
-        q = "BINARY uid = ? AND provider='email'"
-      end
-
-      @resource = resource_class.where(q, email).first
 
       if @resource and valid_params? and @resource.valid_password?(resource_params[:password]) and @resource.confirmed?
         # create client id
@@ -33,7 +20,7 @@ module DeviseTokenAuth
         sign_in(:user, @resource, store: false, bypass: false)
 
         render json: {
-          data: (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil))
+          data: (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil)
         }
 
       elsif @resource and not @resource.confirmed?
@@ -80,6 +67,25 @@ module DeviseTokenAuth
 
     def resource_params
       params.permit(devise_parameter_sanitizer.for(:sign_in))
+    end
+
+    protected
+
+    def set_resource
+      # honor devise configuration for case_insensitive_keys
+      if resource_class.case_insensitive_keys.include?(:email)
+        email = resource_params[:email].downcase
+      else
+        email = resource_params[:email]
+      end
+
+      q = "uid = ? AND provider='email'"
+
+      if ActiveRecord::Base.connection.adapter_name.downcase.starts_with? 'mysql'
+        q = "BINARY uid = ? AND provider='email'"
+      end
+
+      @resource = resource_class.where(q, email).first
     end
   end
 end
