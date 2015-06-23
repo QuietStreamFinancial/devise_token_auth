@@ -18,7 +18,7 @@ module DeviseTokenAuth
       if resource_class.devise_modules.include?(:confirmable) && !params[:confirm_success_url]
         return render json: {
           status: 'error',
-          data:   @resource,
+          data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil),
           errors: ["Missing `confirm_success_url` param."]
         }, status: 403
       end
@@ -52,13 +52,13 @@ module DeviseTokenAuth
 
           render json: {
             status: 'success',
-            data:   @resource.as_json
+            data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil)
           }
         else
           clean_up_passwords @resource
           render json: {
             status: 'error',
-            data:   @resource,
+            data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil),
             errors: @resource.errors.to_hash.merge(full_messages: @resource.errors.full_messages)
           }, status: 403
         end
@@ -66,8 +66,8 @@ module DeviseTokenAuth
         clean_up_passwords @resource
         render json: {
           status: 'error',
-          data:   @resource,
-          errors: ["An account already exists for #{@resource.email}"]
+          data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil),
+          errors: ["An account already exists"]
         }, status: 403
       end
     end
@@ -78,7 +78,7 @@ module DeviseTokenAuth
         if @resource.update_attributes(account_update_params)
           render json: {
             status: 'success',
-            data:   @resource.as_json
+            data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil)
           }
         else
           render json: {
@@ -100,7 +100,7 @@ module DeviseTokenAuth
 
         render json: {
           status: 'success',
-          message: "Account with uid #{@resource.uid} has been destroyed."
+          message: "Account has been destroyed."
         }
       else
         render json: {

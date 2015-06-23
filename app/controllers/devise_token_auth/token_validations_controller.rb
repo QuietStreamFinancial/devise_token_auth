@@ -8,7 +8,7 @@ module DeviseTokenAuth
       if @resource
         render json: {
           success: true,
-          data: @resource.token_validation_response
+          data: (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil)
         }
       else
         render json: {

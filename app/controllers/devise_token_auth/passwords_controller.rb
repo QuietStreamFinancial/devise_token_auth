@@ -131,7 +131,7 @@ module DeviseTokenAuth
         return render json: {
           success: true,
           data: {
-            user: @resource,
+            user: (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil),
             message: "Your password has been successfully updated."
           }
         }
