@@ -43,7 +43,13 @@ class DeviseTokenAuth::SessionsControllerTest < ActionController::TestCase
         end
 
         test "request should return user data" do
+          skip("QSF/IMS: Resource is not returned in data")
           assert_equal @existing_user.email, @data['data']['email']
+        end
+
+        # QSF/IMS
+        test "request should NOT return user data" do
+          assert_nil @data['data']
         end
 
         describe 'trackable' do
@@ -214,8 +220,15 @@ class DeviseTokenAuth::SessionsControllerTest < ActionController::TestCase
       end
 
       test "request should return user data" do
+        skip("QSF/IMS: Resource is not returned in data")
         assert_equal @existing_user.email, @data['data']['email']
       end
+
+      # QSF/IMS
+      test "request should NOT return user data" do
+        assert_nil @data['data']
+      end
+
     end
 
     describe 'User with only :database_authenticatable and :registerable included' do

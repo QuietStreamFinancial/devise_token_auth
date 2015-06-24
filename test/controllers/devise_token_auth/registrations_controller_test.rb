@@ -39,7 +39,13 @@ class DeviseTokenAuth::RegistrationsControllerTest < ActionDispatch::Integration
       end
 
       test "new user data should be returned as json" do
+        skip("QSF/IMS: Resource is not returned in data")
         assert @data['data']['email']
+       end
+
+      # QSF/IMS
+      test "new user data should NOT be returned as json" do
+        assert_nil @data['data']
       end
 
       test "new user should receive confirmation email" do
@@ -47,7 +53,8 @@ class DeviseTokenAuth::RegistrationsControllerTest < ActionDispatch::Integration
       end
 
       test "new user password should not be returned" do
-        assert_nil @data['data']['password']
+        # QSF/IMS
+        assert_nil @data['data']
       end
 
       test "only one email was sent" do
@@ -94,6 +101,7 @@ class DeviseTokenAuth::RegistrationsControllerTest < ActionDispatch::Integration
       end
 
       test "success should downcase uid if configured" do
+        skip("QSF/IMS: Resource is not returned in data")
         @resource_class.case_insensitive_keys = [:email]
         post '/auth', @request_params
         assert_equal 200, response.status
@@ -102,6 +110,7 @@ class DeviseTokenAuth::RegistrationsControllerTest < ActionDispatch::Integration
       end
 
       test "request should not downcase uid if not configured" do
+        skip("QSF/IMS: Resource is not returned in data")
         @resource_class.case_insensitive_keys = []
         post '/auth', @request_params
         assert_equal 200, response.status
@@ -372,7 +381,13 @@ class DeviseTokenAuth::RegistrationsControllerTest < ActionDispatch::Integration
       end
 
       test "new user data should be returned as json" do
+        skip("QSF/IMS: Resource is not returned in data")
         assert @data['data']['email']
+      end
+
+      # QSF/IMS
+      test "new user data should NOT be returned as json" do
+        assert @data['data'].nil?
       end
     end
 
