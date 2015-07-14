@@ -128,13 +128,15 @@ module DeviseTokenAuth
       end
 
       if @resource.update_attributes(password_resource_params)
-        return render json: {
-          success: true,
-          data: {
-            user: (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil),
-            message: "Your password has been successfully updated."
-          }
-        }
+
+        render json: @resource, adapter: :json_api
+        # render json: {
+        #   success: true,
+        #   data: {
+        #     user: (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil),
+        #     message: "Your password has been successfully updated."
+        #   }
+        # }
       else
         return render json: {
           success: false,

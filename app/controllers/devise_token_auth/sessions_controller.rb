@@ -19,9 +19,10 @@ module DeviseTokenAuth
 
         sign_in(:user, @resource, store: false, bypass: false)
 
-        render json: {
-          data: (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil)
-        }
+        render json: @resource, adapter: :json_api
+        # render json: {
+        #   data: (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil)
+        # }
 
       elsif @resource and not @resource.confirmed?
         render json: {
