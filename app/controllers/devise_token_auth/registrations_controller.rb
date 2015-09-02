@@ -16,11 +16,14 @@ module DeviseTokenAuth
 
       # success redirect url is required
       if resource_class.devise_modules.include?(:confirmable) && !params[:confirm_success_url]
-        return render json: {
-          status: 'error',
-          data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil),
-          errors: ["Missing `confirm_success_url` param."]
-        }, status: 403
+        @resource.errors.add(:base, "Missing `confirm_success_url` param.")
+
+        return render json: @resource, adapter: :json_api, status: 403
+        # return render json: {
+        #   status: 'error',
+        #   data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil),
+        #   errors: ["Missing `confirm_success_url` param."]
+        # }, status: 403
       end
 
       begin
@@ -50,25 +53,33 @@ module DeviseTokenAuth
             update_auth_header
           end
 
-          render json: {
-            status: 'success',
-            data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil)
-          }
+          render json: @resource, adapter: :json_api
+          # render json: {
+          #   status: 'success',
+          #   data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil)
+          # }
         else
           clean_up_passwords @resource
-          render json: {
-            status: 'error',
-            data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil),
-            errors: @resource.errors.to_hash.merge(full_messages: @resource.errors.full_messages)
-          }, status: 403
+
+          render json: @resource, adapter: :json_api, status: 403
+
+          # render json: {
+          #   status: 'error',
+          #   data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil),
+          #   errors: @resource.errors.to_hash.merge(full_messages: @resource.errors.full_messages)
+          # }, status: 403
         end
       rescue ActiveRecord::RecordNotUnique
         clean_up_passwords @resource
-        render json: {
-          status: 'error',
-          data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil),
-          errors: ["An account already exists"]
-        }, status: 403
+
+        @resource.errors.add(:base, "An account already exists.")
+
+        render json: @resource, adapter: :json_api, status: 403
+        # render json: {
+        #   status: 'error',
+        #   data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil),
+        #   errors: ["An account already exists"]
+        # }, status: 403
       end
     end
 
@@ -76,10 +87,12 @@ module DeviseTokenAuth
       if @resource
 
         if @resource.update_attributes(account_update_params)
-          render json: {
-            status: 'success',
-            data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil)
-          }
+
+          render json: @resource, adapter: :json_api
+          # render json: {
+          #   status: 'success',
+          #   data:   (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil)
+          # }
         else
           render json: {
             status: 'error',

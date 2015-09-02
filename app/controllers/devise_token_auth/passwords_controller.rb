@@ -27,11 +27,11 @@ module DeviseTokenAuth
         email = resource_params[:email]
       end
 
-      q = "uid = ? AND provider='email'"
+      q = "uid = ? AND provider='token'"
 
       # fix for mysql default case insensitivity
       if ActiveRecord::Base.connection.adapter_name.downcase.starts_with? 'mysql'
-        q = "BINARY uid = ? AND provider='email'"
+        q = "BINARY uid = ? AND provider='token'"
       end
 
       @resource = resource_class.where(q, email).first
@@ -41,7 +41,7 @@ module DeviseTokenAuth
       if @resource
         @resource.send_reset_password_instructions({
           email: email,
-          provider: 'email',
+          provider: 'token',
           redirect_url: params[:redirect_url],
           client_config: params[:config_name]
         })
@@ -111,7 +111,7 @@ module DeviseTokenAuth
       end
 
       # make sure account doesn't use oauth2 provider
-      unless @resource.provider == 'email'
+      unless @resource.provider == 'token'
         return render json: {
           success: false,
           errors: ["This account does not require a password. Sign in using "+
@@ -128,13 +128,15 @@ module DeviseTokenAuth
       end
 
       if @resource.update_attributes(password_resource_params)
-        return render json: {
-          success: true,
-          data: {
-            user: (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil),
-            message: "Your password has been successfully updated."
-          }
-        }
+
+        render json: @resource, adapter: :json_api
+        # render json: {
+        #   success: true,
+        #   data: {
+        #     user: (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil),
+        #     message: "Your password has been successfully updated."
+        #   }
+        # }
       else
         return render json: {
           success: false,

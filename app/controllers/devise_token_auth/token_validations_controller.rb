@@ -6,10 +6,11 @@ module DeviseTokenAuth
     def validate_token
       # @resource will have been set by set_user_token concern
       if @resource
-        render json: {
-          success: true,
-          data: (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil)
-        }
+        render json: @resource, adapter: :json_api
+        # render json: {
+        #   success: true,
+        #   data: (ActiveModel::Serializer.serializer_for(@resource).new(@resource) rescue nil)
+        # }
       else
         render json: {
           success: false,
